@@ -30,6 +30,7 @@ module.exports = {
             checkingType: 'money market',
         },
         {
+            id: 3,
             owner: {
                 firstname: 'john',
                 lastname: 'doe'

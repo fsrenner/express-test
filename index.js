@@ -1,10 +1,7 @@
 const express = require('express');
 const app = express();
 const port = process.env.PORT || 3000;
-const multer = require('multer');
-
 const config = require('./config');
-const upload = multer(config.multer).single(config.document);
 const testAccounts = config.accountStructureExample;
 
 // Express middleware
@@ -37,33 +34,50 @@ app.get('/accounts/:id', (req, res) => {
     return res.json(userAccount);
 });
 
-app.get('/accounts/deposit', (req, res) => {
-    const id = req.body.id;
-    const amount = req.body.amount;
+app.post('/accounts/deposit', (req, res) => {
+    const { id, amount } = req.body;
     const account = testAccounts.find(account => account.id === id);
-
+    account.balance =  account.balance + amount;
+    // Update account balance in a connected db
+    return res.json(account);
 });
 
-app.get('/accounts/withdraw', (req, res) => {
-    const id = req.body.id;
-    const amount = req.body.amount;
+app.post('/accounts/withdraw', (req, res) => {
+    const { id, amount } = req.body;
     const account = testAccounts.find(account => account.id === id);
     if (account.accountType === 'checking' && account.checkingType === 'individual' && amount > 1000) {
         return res.json({
-            message: `The withdrawal limit of an individual account is $1000. You tried to withdraw ${amount}`;
+            message: `The withdrawal limit of an individual account is $1000. You tried to withdraw ${amount}`
         });
     } else if (account.balance < amount) {
         return res.json({
-            message: `Insufficent funds in ${account.accountType} account. Balance: ${account.balance}`
+            message: `Insufficent funds in ${account.accountType} account. You tried to withdraw: ${amount}. Balance: ${account.balance}`
         });
+    } else {
+        account.balance = account.balance - amount;
+        // Update account balance in a connected db
+        return res.json(account)
     }
 });
 
-app.get('/accounts/transfer', (req, res) => {
-    const id = req.body.id;
-    const amount = req.body.amount;
-    const account = testAccounts.find(account => account.id === id);
-
+app.post('/accounts/transfer', (req, res) => {
+    const { fromAccount, toAccount, amount } = req.body;
+    const fromAcc = testAccounts.find(account => account.id === fromAccount);
+    const toAcc = testAccounts.find(account => account.id === toAccount);
+    if (fromAcc.balance < amount) {
+        return res.json({
+            message: `Insufficent funds in ${account.accountType} account. You tried to withdraw: ${amount}. Balance: ${account.balance}`
+        });
+    } else {
+        fromAcc.balance = fromAcc.balance - amount;
+        toAcc.balance = toAcc.balance + amount;
+        // Update account balances in connected db
+        return res.json({
+            message: 'Success',
+            fromAccount: `New balance for ${fromAcc.accountType} account number ${fromAccount} is ${fromAcc.balance}`,
+            toAccount: `New balance for ${toAcc.accountType} account number ${toAccount} is ${toAcc.balance}`,
+        });
+    }
 });
 
 // Fetch account by owner firstname and lastname
@@ -73,8 +87,6 @@ app.get('/accounts/:firstname/:lastname', (req, res) => {
     const userAccounts = testAccounts.filter(account => account.owner.lastname === lastname && account.owner.firstname === firstname);
     return res.json(userAccounts);
 });
-
-
 
 app.listen(config.port, config.host, (err) => {
     if (err) {
