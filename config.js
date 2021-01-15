@@ -1,12 +1,6 @@
-const multer = require('multer');
-
 module.exports = {
     host: process.env.HOST || 'localhost',
     port: process.env.PORT || 3000,
-    multer: {
-        storage: multer.memoryStorage()
-    },
-    document: 'file',
     bankName: 'Liberty Bank',
     accountStructureExample: [
         {

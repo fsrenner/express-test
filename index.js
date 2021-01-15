@@ -94,3 +94,5 @@ app.listen(config.port, config.host, (err) => {
     }
     console.log(`Server listening at ${config.host}:${config.port}`)
 });
+
+module.exports = app;
