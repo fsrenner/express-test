@@ -17,4 +17,37 @@ describe('Route tests', () => {
                 });
         });
     });
+
+    describe('Transfer route', () => {
+        it('should transfer', done => {
+            request(app)
+                .post('/accounts/transfer')
+                .send({
+                        "fromAccount": 2,
+                        "toAccount": 3,
+                        "amount": 25
+                })
+                .end((err, res) => {
+                    expect(res.status).to.be.eq(200);
+                    expect(res.body.message).to.eq('Success');
+                    done();
+                });
+        });
+    });
+
+    describe('deposit route', () => {
+        it('should deposit', done => {
+            request(app)
+                .post('/accounts/deposit')
+                .send({
+                        "id": 1,
+                        "amount": 25
+                })
+                .end((err, res) => {
+                    expect(res.status).to.be.eq(200);
+                    expect(res.body.balance).to.eq(12370.54);
+                    done();
+                });
+        });
+    });
 });
