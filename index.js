@@ -1,6 +1,5 @@
 const express = require('express');
 const app = express();
-const port = process.env.PORT || 3000;
 const config = require('./config');
 const testAccounts = config.accountStructureExample;
 
@@ -66,7 +65,7 @@ app.post('/accounts/transfer', (req, res) => {
     const toAcc = testAccounts.find(account => account.id === toAccount);
     if (fromAcc.balance < amount) {
         return res.json({
-            message: `Insufficent funds in ${account.accountType} account. You tried to withdraw: ${amount}. Balance: ${account.balance}`
+            message: `Insufficent funds in ${fromAcc.accountType} account. You tried to withdraw: ${amount}. Balance: ${fromAcc.balance}`
         });
     } else {
         fromAcc.balance = fromAcc.balance - amount;
